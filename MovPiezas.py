@@ -1,3 +1,4 @@
+#Ricardo Torres
 def moverPeonB(indice,coordDestino):
     mover=0
     coordOrigen=posBlancas[indice]
