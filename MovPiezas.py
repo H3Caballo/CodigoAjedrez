@@ -1,4 +1,5 @@
 #Ricardo Torres Sánchez A01334302
+#Luis Villegas A01335257
 def moverPeonB(indice,coordDestino,enpassantN,columnaEnpassantN,indiceEnpassantN):
     mover=0
     enpassantB=False
