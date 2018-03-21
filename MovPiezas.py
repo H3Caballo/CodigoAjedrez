@@ -412,50 +412,157 @@ def moverRey(indice,coordDestino,turnoBlancas):
     enpassantN=False
     return accion,indiceContrario
 
+def enroque(indiceTorre,turnoBlancas):
+    global posBlancas
+    global posNegras
+##    indice 8 es el largo, 9 es el corto
+    if turnoBlancas and indiceTorre==8 and enroqueLB:
+        if jaqueB:
+            accion='invalido'
+        else:
+            accion,indiceContrario=moverTorre(indiceTorre,0x41,turnoBlancas)
+            accion,indiceContrario=moverRey(15,0x41,turnoBlancas)
+            if accion=='mover':
+                posOriginalRey=posBlancas[15]
+                posBlancas[15]=0x41
+                accion,indiceContrario=moverRey(15,0x31,turnoBlancas)
+                posBlancas[15]=posOriginalRey
+                coordDestinoTorre=0x41
+    elif turnoBlancas and indiceTorre==9 and enroqueCB:
+        if jaqueB:
+            accion='invalido'
+        else:
+            accion,indiceContrario=moverTorre(indiceTorre,0x61,turnoBlancas)
+            accion,indiceContrario=moverRey(15,0x61,turnoBlancas)
+            if accion=='mover':
+                posOriginalRey=posBlancas[15]
+                posBlancas[15]=0x61
+                accion,indiceContrario=moverRey(15,0x71,turnoBlancas)
+                posBlancas[15]=posOriginalRey
+                coordDestinoTorre=0x61
+    elif not(turnoBlancas) and indiceTorre==8 and enroqueLN:
+        if jaqueN:
+            accion='invalido'
+        else:
+            accion,indiceContrario=moverTorre(indiceTorre,0x48,turnoBlancas)
+            accion,indiceContrario=moverRey(15,0x48,turnoBlancas)
+            if accion=='mover':
+                posOriginalRey=posNegras[15]
+                posNegras[15]=0x48
+                accion,indiceContrario=moverRey(15,0x38,turnoBlancas)
+                posNegras[15]=posOriginalRey
+                coordDestinoTorre=0x48
+    elif not(turnoBlancas) and indiceTorre==9 and enroqueCN:
+        if jaqueN:
+            accion='invalido'
+        else:
+            accion,indiceContrario=moverTorre(indiceTorre,0x68,turnoBlancas)
+            accion,indiceContrario=moverRey(15,0x68,turnoBlancas)
+            if accion=='mover':
+                posOriginalRey=posNegras[15]
+                posNegras[15]=0x68
+                accion,indiceContrario=moverRey(15,0x78,turnoBlancas)
+                posNegras[15]=posOriginalRey
+                coordDestinoTorre=0x68
+    else:
+        accion='invalido'
+    if accion=='mover':
+        funcionMover(indiceTorre,coordDestinoTorre,turnoBlancas)
+##        movimientoEspecialdeRey
+    return accion
+
 def funcionComer(indiceComedor,indiceComido,coordDestino,turnoBlancas):
     global jaqueN
     global jaqueB
+    global posBlancas
+    global posNegras
+    global coordIman
     mover=coordDestino
     if indiceComido==15:
         accion='invalido'
     else:
         mover=coordDestino
         if turnoBlancas:
-            coordOriginal=posBlancas[indiceComedor]
+            coordOriginalComedor=posBlancas[indiceComedor]
             posBlancas[indiceComedor]=coordDestino
             jaquePrevio=jaqueB
             jaqueB=checarJaqueB()
             if jaqueB:
-                posBlancas[indiceComedor]=coordOriginal
+                posBlancas[indiceComedor]=coordOriginalComedor
                 accion='invalido'
                 jaqueB=jaquePrevio
             else:
                 a=1
-                accion='Sí se lo comió'
+                accion='comer'
+                coordOriginalComido=posNegras[indiceComido]
                 posNegras[indiceComido]=posNegrasMorts[indiceComido]
+                coordFinalMovido=posNegrasMorts[indiceComido]
                 jaqueN=checarJaqueN()
                 #Acción motor pasos
         else:
-            coordOriginal=posNegras[indiceComedor]
+            coordOriginalComedor=posNegras[indiceComedor]
             posNegras[indiceComedor]=coordDestino
             jaquePrevio=jaqueN
             jaqueN=checarJaqueN()
             if jaqueN:
-                posNegras[indiceComedor]=coordOriginal
+                posNegras[indiceComedor]=coordOriginalComedor
                 accion='invalido'
                 jaqueN=jaquePrevio
             else:
                 a=1
-                accion='Sí se lo comió'
+                accion='comer'
+                coordOriginalComido=posBlancas[indiceComido]
                 posBlancas[indiceComido]=posBlancasMorts[indiceComido]
+                coordFinalMovido=posBlancasMorts[indiceComido]
                 jaqueB=checarJaqueB()
                 #Acción motor pasos
+##    if accion=='comer':
+##        coordOrigen=coordOriginalComido
+##        difFilasIman=(coordOrigen&0xF) - (coordIman&0xF)
+##        difColumnasIman=(coordOrigen&0xF0) - (coordIman&0xF0)
+##        difFilasMort=(coordFinalComido&0xF) - (coordOriginalComido&0xF)
+##        difColumnasMort=(coordFinalComido&0xF0) - (coordOrigninalComido&0xF0)
+##       
+##            if difFilasIman<0:
+##                dirHoutput.LOW
+##                signoV=-1
+##            else:
+##                dirHoutput.HIGH
+##                signoV=1
+##            if difColumnasIman<0:
+##                dirVoutput.LOW
+##                signoH=-1
+##            else:
+##                dirVoutput.HIGH
+##                signoH=1
+##            pwmH=N*abs(difColumnasIman/0x10)
+##            pwmV=N*abs(difFilasIman)
+##        
+##            if abs(difFilasMort*0x10)<abs(difColumnasMort):
+##                pwmV=N*(1/2)casilla
+##                difFilasMort -= 0.5*signoV
+##                pwmH=N*abs(difColumnasMort/0x10)
+##                pwmV=N*abs(difFilasMort)
+##            else:
+##                pwmH=N*(1/2)casilla
+##                difColumnasMort -= 0.5*signoV*0x10
+##                pwmV=N*abs(difFilasMort)
+##                pwmH=N*abs(difColumnasMort/0x10)
+##            coordIman=coordFinalComido
+##
+##            moverMotor(coordOriginalComedor,coordDestino)
+            
+            
     return accion
         
 def funcionMover(indice,coordDestino,turnoBlancas):
     global jaqueN
     global jaqueB
+    global posBlancas
+    global posNegras
+    global coordIman
     mover=coordDestino
+    
     if turnoBlancas:
         coordOriginal=posBlancas[indice]
         posBlancas[indice]=coordDestino
@@ -467,9 +574,10 @@ def funcionMover(indice,coordDestino,turnoBlancas):
             jaqueB=jaquePrevio
         else:
             a=1
-            accion='Sí se movió'
+            accion='mover'
             jaqueN=checarJaqueN()
             #Acción motor pasos
+
     else:
         coordOriginal=posNegras[indice]
         posNegras[indice]=coordDestino
@@ -481,10 +589,48 @@ def funcionMover(indice,coordDestino,turnoBlancas):
             jaqueN=jaquePrevio
         else:
             a=1
-            accion='Sí se movió'
+            accion='mvoer'
             jaqueB=checarJaqueB()
             #Acción motor pasos
+    if accion=='mover':
+        accion='Sí se movió'
+##        moverMotor(coordOriginal,coordDestino)
+
+                
     return accion
+
+##def moverMotor(coordOrigen,coordDestino):
+##    global coordIman
+##        difFilas=(coordDestino&0xF) - (coordOrigen&0xF)
+##        difColumnas=(coordDestino&0xF0) - (coordOrigen&0xF0)
+##        
+##        difFilasIman=(coordOrigen&0xF) - (coordIman&0xF)
+##        difColumnasIman=(coordOrigen&0xF0) - (coordIman&0xF0)
+##       
+##            if difFilasIman<0:
+##                dirHoutput.LOW
+##            else:
+##                dirHoutput.HIGH
+##            if difColumnasIman<0:
+##                dirVoutput.LOW
+##            else:
+##                dirVoutput.HIGH
+##            pwmH=N*abs(difColumnasIman/0x10)
+##            pwmV=N*abs(difFilasIman)
+        
+##            if difFilas<0:
+##                dirHoutput.LOW
+##            else:
+##                dirHoutput.HIGH
+##            if difColumnas<0:
+##                dirVoutput.LOW
+##            else:
+##                dirVoutput.HIGH
+##
+##            pwmH=N*abs(difColumnas/0x10)
+##            pwmV=N*abs(difFilas)
+##            coordIman=coordDestino
+    
 
 def checarJaqueB():
     jaqueB=False
@@ -546,7 +692,7 @@ def checarJaqueN():
 
 ###########################################################################################################################3
 
-posBlancas=[0x12,0x22,0x32,0x43,0x52,0x62,0x72,0x82,0x11,0x81,0x21,0x71,0x33,0x61,0x41,0x51]
+posBlancas=[0x12,0x22,0x32,0x43,0x52,0x62,0x72,0x82,0x11,0x81,0x21,0x71,0x31,0x61,0x41,0x51]
 posBlancasMorts=[0x01,0x02,0x03,0x04,0x94,0x93,0x92,0x91,0x10,0x80,0x20,0x70,0x30,0x60,0x40,0x50]
 
 posNegras=[0x17,0x27,0x36,0x47,0x57,0x67,0x77,0x87,0x18,0x88,0x26,0x78,0x38,0x68,0x48,0x58]
@@ -562,6 +708,14 @@ indiceEnpassantN=0
 
 jaqueB=False
 jaqueN=False
+
+enroqueCB=True
+enroqueLB=True
+enroqueCN=True
+enroqueLN=True
+
+accion=enroque(8,turnoBlancas)
+print(accion)
 
 ##accion,indiceContrario=moverPeon(2,0x34,turnoBlancas)
 ##print(accion)
